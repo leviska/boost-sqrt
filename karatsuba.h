@@ -50,7 +50,7 @@ struct KaratsubaSqrt<tInt<Bits>> {
 	tInt<Bits> Sqrt(tInt<Bits> const& value) {
         size_t size = value.backend().size();
         tInt<Bits> res;
-        if (size == 0) {
+        if (size == 0 || Bits <= 128 && value == 0) {
             res = 0;
         }
         else if (size == 1 && Bits > 128) {
@@ -63,13 +63,8 @@ struct KaratsubaSqrt<tInt<Bits>> {
 	}
 private:
 	tInt<Bits> sqrt(tInt<Bits> const& value) {
-		for (size_t i = Bits; i > 0; i--) {
-            if (bit_test(value, i - 1)) {
-                tInt<Bits> r;
-                return KaratsubaImpl(value, r, i);
-            }
-        }
-        return 0;
+        tInt<Bits> r;
+        return KaratsubaImpl(value, r, msb(value) + 1);
 	}
 };
 

@@ -27,20 +27,26 @@ static void TestNearValue(tInt const& value, uint64_t from = 100, uint64_t to = 
 }
 
 const bool PrintProgress = true;
-/*
+
 BOOST_AUTO_TEST_CASE(TestFirstN) {
 	uint64_t maxValue = 10000000;
 	// just check every number in [0, maxValue]
 	for (uint64_t i = 0; i < maxValue; i++) {
 		tInt<32> v32 = IntSqrt<tInt<32>>(tInt<32>(i));
 		tInt<64> v64 = IntSqrt<tInt<64>>(tInt<64>(i));
+		tInt<128> v128 = IntSqrt<tInt<128>>(tInt<128>(i));
+		tInt<256> v256 = IntSqrt<tInt<256>>(tInt<256>(i));
 		BOOST_CHECK_EQUAL(v32, v64);
+		BOOST_CHECK_EQUAL(tInt<128>(v64), v128);
+		BOOST_CHECK_EQUAL(tInt<256>(v64), v256);
 		CheckSqrt<tInt<64>>(v32, i);
 		CheckSqrt<tInt<64>>(v64, i);
+		CheckSqrt<tInt<128>>(v128, i);
+		CheckSqrt<tInt<256>>(v256, i);
 		if (PrintProgress && i % 1000000 == 0) std::cout << i / 100000 << std::endl;
 	}
 }
-*/
+
 
 BOOST_AUTO_TEST_CASE(TestOne) {
 	{
