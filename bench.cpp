@@ -57,16 +57,17 @@ struct BoostSqrt {
 };
 
 template<typename T>
-struct Baseline {
+struct CopyBaseline {
 	T Sqrt(const T& v) {
 		return v;
 	}
 };
 
 int main(int argc, char** argv) {
-	Register<Baseline>("Baseline");
+	Register<CopyBaseline>("CopyBaseline");
 	Register<BoostSqrt>("BoostSqrt");
 	Register<NewtonSqrt>("NewtonSqrt");
+	Register<KaratsubaSqrt>("KaratsubaSqrt");
 	benchmark::Initialize(&argc, argv);
 	benchmark::RunSpecifiedBenchmarks();
 }

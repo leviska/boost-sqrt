@@ -22,22 +22,17 @@ template<typename tInt>
 tInt KaratsubaImpl(tInt v, tInt& rem, size_t bits) {
     if (bits <= 64) {
         uint64_t val = v.template convert_to<uint64_t>();
-        uint64_t res = MathSqrt<uint64_t>().Sqrt(val);
-        rem = tInt(val - res * res);
-        return tInt(res);
+        uint64_t s = MathSqrt<uint64_t>().Sqrt(val);
+        rem = tInt(val - s * s);
+        return tInt(s);
     }
     size_t b = bits / 4;
-    tInt tmp = v >> ((bits + 1) / 2);
-    tInt s = KaratsubaImpl(tmp, rem, bits / 2);
-    std::cout << bits << " " << tmp << " " << s << " " << int(s * s <= tmp) << " " << int((s + 1) * (s + 1) > tmp) << std::endl;
+    tInt s = KaratsubaImpl(v >> (b * 2), rem, bits - b * 2);
     tInt q;
-    tmp = (tInt(1) << (b * 2)) - 1;
-    tmp &= v;
-    tmp >>= b;
-    tmp = (rem << b) + tmp;
-    divide_qr(tmp, s << 1, q, rem);
-    
-    rem = (rem << b) + (v & ((tInt(1) << b) - 1));
+    rem <<= b;
+    divide_qr(rem + ((v & ((tInt(1) << (b * 2)) - 1)) >> b), s << 1, q, rem);
+    rem <<= b;
+    rem += (v & ((tInt(1) << b) - 1));
     s <<= b;
     s += q;
     q *= q;
@@ -46,7 +41,6 @@ tInt KaratsubaImpl(tInt v, tInt& rem, size_t bits) {
         s--;
     }
     rem -= q;
-    std::cout << bits << " " << v << " " << v - s * s - rem << " " << s * s + rem << std::endl;  
     return s;
 }
 
