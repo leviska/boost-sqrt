@@ -5,10 +5,12 @@ project(boost-sqrt VERSION 1.0 LANGUAGES CXX)
 find_package(Boost 1.76.0 REQUIRED COMPONENTS unit_test_framework)
 find_package(benchmark REQUIRED)
 
-add_compile_options(-Wfatal-errors -O2)
 
 add_executable(sqrt_test test.cpp)
 add_executable(sqrt_bench bench.cpp)
+
+target_compile_options(sqrt_test PRIVATE -Wfatal-errors -g)
+target_compile_options(sqrt_bench PRIVATE -Wfatal-errors -O2)
 
 target_compile_features(sqrt_test PRIVATE cxx_std_17)
 target_compile_features(sqrt_bench PRIVATE cxx_std_17)
