@@ -8,32 +8,12 @@ void BenchOper(benchmark::State &state, F f) {
     std::vector<T> b(10000);
 	std::vector<T> res(10000);
     if constexpr (std::is_same<T, mpz_int>::value) {
-	    {
-            boost::random::independent_bits_engine<boost::random::mt19937, Left, mpz_int> gen;
-            for (auto &v : a) {
-                v = T(gen());
-            }
-        }
-        {
-            boost::random::independent_bits_engine<boost::random::mt19937, Right, mpz_int> gen;
-            for (auto &v : b) {
-                v = T(gen());
-            }
-        }
+	    FillRandom<T, mpz_int, Left>(a);
+	    FillRandom<T, mpz_int, Right>(b);
     }
     else {
-        {
-            boost::random::independent_bits_engine<boost::random::mt19937, Left, cpp_int> gen;
-            for (auto &v : a) {
-                v = T(gen());
-            }
-        }
-        {
-            boost::random::independent_bits_engine<boost::random::mt19937, Right, cpp_int> gen;
-            for (auto &v : b) {
-                v = T(gen());
-            }
-        }
+	    FillRandom<T, cpp_int, Left>(a);
+	    FillRandom<T, cpp_int, Right>(b);
     }
 	size_t i = 0;
     for (auto _ : state) {
@@ -42,9 +22,6 @@ void BenchOper(benchmark::State &state, F f) {
 			i = 0;
 		}
 	}
-	BENCHMARK_UNUSED(a);
-	BENCHMARK_UNUSED(b);
-	BENCHMARK_UNUSED(res);
 }
 
 template<typename T, size_t Left, size_t Right, typename F>
@@ -56,7 +33,7 @@ void RegisterOper(const std::string& testName, F f) {
 
 template<typename T, size_t Left, size_t Right, typename F>
 void RegisterOperPref(const std::string& prefix, F f) {
-    RegisterOper<T, Left, Right, F>(prefix + " " + std::to_string(Left) + " " + std::to_string(Right), f);
+    RegisterOper<T, Left, Right, F>(prefix + "_" + std::to_string(Left) + "_" + std::to_string(Right), f);
 }
 
 template<size_t LeftMul, typename F>

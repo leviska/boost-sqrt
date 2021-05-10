@@ -27,7 +27,7 @@ tInt KaratsubaImpl(tInt v, tInt& rem, size_t bits) {
         return tInt(s);
     }
     size_t b = bits / 4;
-    tInt s = KaratsubaImpl(v >> (b * 2), rem, bits - b * 2);
+    tInt s = KaratsubaImpl(tInt(v >> (b * 2)), rem, bits - b * 2);
     tInt q;
     rem <<= b;
     divide_qr(rem + ((v & ((tInt(1) << (b * 2)) - 1)) >> b), s << 1, q, rem);
@@ -68,3 +68,26 @@ private:
 	}
 };
 
+
+template<>
+struct KaratsubaSqrt<cpp_int> {
+	cpp_int Sqrt(cpp_int const& value) {
+        size_t size = value.backend().size();
+        cpp_int res;
+        if (size == 0) {
+            res = 0;
+        }
+        else if (size == 1) {
+            res = MathSqrt<uint64_t>().Sqrt(value.template convert_to<uint64_t>());
+        }
+        else {
+            res = sqrt(value);
+        }
+        return res;
+	}
+private:
+	cpp_int sqrt(cpp_int const& value) {
+        cpp_int r;
+        return KaratsubaImpl(value, r, msb(value) + 1);
+	}
+};

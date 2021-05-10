@@ -35,3 +35,11 @@ struct MathSqrt<uint64_t> {
 		return res;
 	}
 };
+
+template<typename Int, typename Backend, size_t Length>
+void FillRandom(std::vector<Int>& v) {
+    boost::random::independent_bits_engine<boost::random::mt19937, Length, Backend> gen;
+    for (auto &i : v) {
+        i = Int(gen());
+    }
+}
