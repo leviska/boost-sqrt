@@ -38,18 +38,24 @@ void RegisterOperPref(const std::string& prefix, F f) {
 
 template<size_t LeftMul, typename F>
 void RegisterBoost(const std::string& prefix, F f) {
+	RegisterOperPref<tInt<64>, 64 * LeftMul, 64, F>(prefix, f);
 	RegisterOperPref<tInt<128>, 128 * LeftMul, 128, F>(prefix, f);
 	RegisterOperPref<tInt<256>, 256 * LeftMul, 256, F>(prefix, f);
 	RegisterOperPref<tInt<512>, 512 * LeftMul, 512, F>(prefix, f);
 	RegisterOperPref<tInt<1024>, 1024 * LeftMul, 1024, F>(prefix, f);
+	RegisterOperPref<tInt<8192>, 8192 * LeftMul, 8192, F>(prefix, f);
+	RegisterOperPref<tInt<65536>, 65536 * LeftMul, 65536, F>(prefix, f);
 }
 
-template<size_t LeftMul, typename F>
-void RegisterGMP(const std::string& prefix, F f) {
-	RegisterOperPref<mpz_int, 128 * LeftMul, 128, F>(prefix, f);
-	RegisterOperPref<mpz_int, 256 * LeftMul, 256, F>(prefix, f);
-	RegisterOperPref<mpz_int, 512 * LeftMul, 512, F>(prefix, f);
-	RegisterOperPref<mpz_int, 1024 * LeftMul, 1024, F>(prefix, f);
+template<typename T, size_t LeftMul, typename F>
+void RegisterArbitrary(const std::string& prefix, F f) {
+	RegisterOperPref<T, 64 * LeftMul, 64, F>(prefix, f);
+	RegisterOperPref<T, 128 * LeftMul, 128, F>(prefix, f);
+	RegisterOperPref<T, 256 * LeftMul, 256, F>(prefix, f);
+	RegisterOperPref<T, 512 * LeftMul, 512, F>(prefix, f);
+	RegisterOperPref<T, 1024 * LeftMul, 1024, F>(prefix, f);
+	RegisterOperPref<T, 8192 * LeftMul, 8192, F>(prefix, f);
+	RegisterOperPref<T, 65536 * LeftMul, 65536, F>(prefix, f);
 }
 
 template<typename T>
@@ -58,19 +64,28 @@ T KarSqrt(const T& t) {
 }
 
 void RegisterOper() {
-	RegisterBoost<1>("Boost: Add", [](const auto& a, const auto& b) { return a + b; });
-	RegisterGMP<1>("GMP: Add", [](const auto& a, const auto& b) { return a + b; });
+	RegisterBoost<1>("Boost: CopyBaseline", [](const auto& a, const auto&) { return a; });
+	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: CopyBaseline", [](const auto& a, const auto&) { return a; });
+	RegisterArbitrary<mpz_int, 1>("GMP: CopyBaseline", [](const auto& a, const auto&) { return a; });
+
+    RegisterBoost<1>("Boost: Add", [](const auto& a, const auto& b) { return a + b; });
+	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: Add", [](const auto& a, const auto& b) { return a + b; });
+	RegisterArbitrary<mpz_int, 1>("GMP: Add", [](const auto& a, const auto& b) { return a + b; });
 
 	RegisterBoost<1>("Boost: Sub", [](const auto& a, const auto& b) { return a - b; });
-	RegisterGMP<1>("GMP: Sub", [](const auto& a, const auto& b) { return a - b; });
+	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: Sub", [](const auto& a, const auto& b) { return a - b; });
+	RegisterArbitrary<mpz_int, 1>("GMP: Sub", [](const auto& a, const auto& b) { return a - b; });
 
 	RegisterBoost<1>("Boost: Mul", [](const auto& a, const auto& b) { return a * b; });
-	RegisterGMP<1>("GMP: Mul", [](const auto& a, const auto& b) { return a * b; });
+	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: Mul", [](const auto& a, const auto& b) { return a * b; });
+	RegisterArbitrary<mpz_int, 1>("GMP: Mul", [](const auto& a, const auto& b) { return a * b; });
 
 	RegisterBoost<2>("Boost: Div", [](const auto& a, const auto& b) { return a / b; });
-	RegisterGMP<2>("GMP: Div", [](const auto& a, const auto& b) { return a / b; });
+	RegisterArbitrary<cpp_int, 2>("Boost arbitrary: Div", [](const auto& a, const auto& b) { return a / b; });
+	RegisterArbitrary<mpz_int, 2>("GMP: Div", [](const auto& a, const auto& b) { return a / b; });
 
 	RegisterBoost<1>("Boost: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
 	RegisterBoost<1>("Karatsuba: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
-	RegisterGMP<1>("GMP: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
+	RegisterArbitrary<cpp_int, 1>("Karatsuba arbitrary: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
+	RegisterArbitrary<mpz_int, 1>("GMP: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
 }

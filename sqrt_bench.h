@@ -6,8 +6,8 @@
 
 template <size_t Bits, size_t Length, template <typename> typename Sqrt>
 void BenchSqrt(benchmark::State &state) {
-	std::vector<tInt<Bits>> vec(10000);
-	std::vector<tInt<Bits>> res(10000);
+	std::vector<tInt<Bits>> vec(100000);
+	std::vector<tInt<Bits>> res(100000);
 	boost::random::independent_bits_engine<boost::random::mt19937, Length, cpp_int> gen;
 	for (auto &v : vec) {
 		v = tInt<Bits>(gen());
@@ -25,8 +25,8 @@ void BenchSqrt(benchmark::State &state) {
 
 template <typename T, size_t Length, typename F>
 void BenchArbitrarySqrt(benchmark::State &state, F f) {
-	std::vector<T> vec(10000);
-	std::vector<T> res(10000);
+	std::vector<T> vec(100000);
+	std::vector<T> res(100000);
     if constexpr (std::is_same<T, mpz_int>::value) {
 	    FillRandom<T, mpz_int, Length>(vec);
     }
