@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(TestNearMax) {
 	std::array<tInt<256>, 8> intMax;
 	for (int i = 2; i < 8; i++) {
 		intMax[i] = tInt<256>((tInt<512>(1) << ((i + 1) * 32)) - 1);
-	}
+	}	
 	for (int i = 0; i < 7; i++) {
 		tInt<512> cur = intMax[i];
 		tInt<512> next = intMax[i + 1];

@@ -1,87 +1,22 @@
-#include <benchmark/benchmark.h>
-#include <boost/random.hpp>
 #include <iostream>
-#include "newton.h"
-#include "karatsuba.h"
+#include "sqrt_bench.h"
+#include "oper_bench.h"
 
-template <size_t Bits, size_t Length, template <typename> typename Sqrt>
-void BenchOne(benchmark::State &state)
-{
-	std::vector<tInt<Bits>> vec(10000);
-	std::vector<tInt<Bits>> res(10000);
-	boost::random::independent_bits_engine<boost::random::mt19937, Length, cpp_int> gen;
-	for (auto &v : vec)
-	{
-		v = tInt<Bits>(gen());
+int main(int argc, char **argv) {
+	if (argc < 2) {
+		std::cout << "Usage sqrt_bench (sqrt|oper) [bench args]" << std::endl;
+		return 0;
 	}
-	size_t i = 0;
-	for (auto _ : state)
-	{
-		res[i] = Sqrt<tInt<Bits>>().Sqrt(vec[i]);
-		if (++i >= vec.size())
-		{
-			i = 0;
-		}
+	if (std::string(argv[1]) == "sqrt") {
+		RegisterSqrt();
 	}
-	BENCHMARK_UNUSED(res);
-	BENCHMARK_UNUSED(vec);
-}
-
-template <size_t Bits, size_t Length, template <typename> typename Sqrt>
-void RegisterOne(const std::string &name)
-{
-	if (Bits < Length)
-	{
-		return;
+	else if (std::string(argv[1]) == "oper") {
+		RegisterOper();
 	}
-	std::string testName = name + "_" + std::to_string(Bits) + "_" + std::to_string(Length);
-	benchmark::RegisterBenchmark(testName.c_str(), [](benchmark::State &state) {
-		BenchOne<Bits, Length, Sqrt>(state);
-	});
-}
-
-template <template <typename> typename Sqrt, size_t V, size_t... T>
-void RegisterIterInner(const std::string &name)
-{
-	(RegisterOne<V, T, Sqrt>(name), ...);
-}
-
-template <template <typename> typename Sqrt, size_t... T>
-void RegisterIter(const std::string &name)
-{
-	(RegisterIterInner<Sqrt, T, T...>(name), ...);
-}
-
-template <template <typename> typename Sqrt>
-void Register(const std::string &name)
-{
-	RegisterIter<Sqrt, 32, 64, 96, 128, 256, 512, 1024, 8192, 65536>(name);
-}
-
-template <typename T>
-struct BoostSqrt
-{
-	T Sqrt(const T &v)
-	{
-		return boost::multiprecision::sqrt(v);
+	else {
+		std::cout << "Usage sqrt_bench (sqrt|oper) [bench args]" << std::endl;
+		return 0;
 	}
-};
-
-template <typename T>
-struct CopyBaseline
-{
-	T Sqrt(const T &v)
-	{
-		return v;
-	}
-};
-
-int main(int argc, char **argv)
-{
-	Register<CopyBaseline>("CopyBaseline");
-	Register<BoostSqrt>("BoostSqrt");
-	Register<NewtonSqrt>("NewtonSqrt");
-	Register<KaratsubaSqrt>("KaratsubaSqrt");
 	benchmark::Initialize(&argc, argv);
 	benchmark::RunSpecifiedBenchmarks();
 }
