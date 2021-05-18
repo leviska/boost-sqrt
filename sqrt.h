@@ -1,6 +1,7 @@
 #pragma once
 #include <boost/multiprecision/number.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <boost/random.hpp>
 #include <algorithm>
 #include <cinttypes>
 #include <cmath>

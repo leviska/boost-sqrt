@@ -63,8 +63,25 @@ T KarSqrt(const T& t) {
     return KaratsubaSqrt<T>().Sqrt(t);
 }
 
+template<bool Kar, typename T>
+T Compute(T a, T b) {
+	a >>= msb(a) / 2;
+	b >>= msb(b) / 2;
+	T c = (a * b) / (a + b);
+	T s = a * b * c * (a + b + c);
+	if constexpr (Kar) {
+		s = KaratsubaSqrt<T>().Sqrt(s);
+	}
+	else {
+		s = boost::multiprecision::sqrt(s);
+	}
+	T x = (a * c - s) / (a * a + a * b);
+	T y = (b * c + s) / (b * b + a * b);
+	return (x + y);
+}
+
 void RegisterOper() {
-	RegisterBoost<1>("Boost: CopyBaseline", [](const auto& a, const auto&) { return a; });
+	/*RegisterBoost<1>("Boost: CopyBaseline", [](const auto& a, const auto&) { return a; });
 	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: CopyBaseline", [](const auto& a, const auto&) { return a; });
 	RegisterArbitrary<mpz_int, 1>("GMP: CopyBaseline", [](const auto& a, const auto&) { return a; });
 
@@ -83,9 +100,17 @@ void RegisterOper() {
 	RegisterBoost<2>("Boost: Div", [](const auto& a, const auto& b) { return a / b; });
 	RegisterArbitrary<cpp_int, 2>("Boost arbitrary: Div", [](const auto& a, const auto& b) { return a / b; });
 	RegisterArbitrary<mpz_int, 2>("GMP: Div", [](const auto& a, const auto& b) { return a / b; });
-
+*/
+	RegisterBoost<1>("Boost: Compute", [](const auto& a, const auto& b) { return Compute<false>(a, b); });
+	RegisterBoost<1>("Boost kar: Compute", [](const auto& a, const auto& b) { return Compute<true>(a, b); });
+	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: Compute", [](const auto& a, const auto& b) { return Compute<false>(a, b); });
+	RegisterArbitrary<cpp_int, 1>("Boost kar arbitrary: Compute", [](const auto& a, const auto& b) { return Compute<true>(a, b); });
+	RegisterArbitrary<mpz_int, 1>("GMP: Compute", [](const auto& a, const auto& b) { return Compute<false>(a, b); });
+/*
 	RegisterBoost<1>("Boost: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
 	RegisterBoost<1>("Karatsuba: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
 	RegisterArbitrary<cpp_int, 1>("Karatsuba arbitrary: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
+	RegisterArbitrary<mpz_int, 1>("Karatsuba gmp int: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
 	RegisterArbitrary<mpz_int, 1>("GMP: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
+	*/
 }

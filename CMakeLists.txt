@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.16)
 project(boost-sqrt VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}../boost_1_76_0)
+set(BOOST_ROOT:PATHNAME ${CMAKE_CURRENT_SOURCE_DIR}../boost_1_76_0)
+set(Boost_NO_SYSTEM_PATHS TRUE)
+set(Boost_NO_BOOST_CMAKE TRUE)
 
 link_directories(/usr/local/lib)
 

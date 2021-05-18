@@ -68,7 +68,6 @@ private:
 	}
 };
 
-
 template<>
 struct KaratsubaSqrt<cpp_int> {
 	cpp_int Sqrt(cpp_int const& value) {
@@ -88,6 +87,29 @@ struct KaratsubaSqrt<cpp_int> {
 private:
 	cpp_int sqrt(cpp_int const& value) {
         cpp_int r;
+        return KaratsubaImpl(value, r, msb(value) + 1);
+	}
+};
+
+template<>
+struct KaratsubaSqrt<mpz_int> {
+	mpz_int Sqrt(mpz_int const& value) {
+        size_t size = value.backend().data()->_mp_size;
+        mpz_int res;
+        if (size == 0) {
+            res = 0;
+        }
+        else if (size == 1) {
+            res = MathSqrt<uint64_t>().Sqrt(value.template convert_to<uint64_t>());
+        }
+        else {
+            res = sqrt(value);
+        }
+        return res;
+	}
+private:
+	mpz_int sqrt(mpz_int const& value) {
+        mpz_int r;
         return KaratsubaImpl(value, r, msb(value) + 1);
 	}
 };

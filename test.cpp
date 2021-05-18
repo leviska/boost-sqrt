@@ -5,7 +5,7 @@
 
 template <class tInt>
 tInt IntSqrt(tInt const& n) {
-	return KaratsubaSqrt<tInt>().Sqrt(n);
+	return sqrt(n);
 }
 
 template<typename tInt>
