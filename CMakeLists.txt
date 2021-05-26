@@ -23,5 +23,5 @@ target_compile_options(sqrt_bench PRIVATE -Wfatal-errors -O2)
 target_compile_features(sqrt_test PRIVATE cxx_std_17)
 target_compile_features(sqrt_bench PRIVATE cxx_std_17)
 
-target_link_libraries(sqrt_test Boost::unit_test_framework)
+target_link_libraries(sqrt_test Boost::unit_test_framework gmp)
 target_link_libraries(sqrt_bench benchmark::benchmark gmp)

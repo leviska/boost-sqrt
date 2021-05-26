@@ -49,6 +49,9 @@ BOOST_AUTO_TEST_CASE(TestFirstN) {
 
 
 BOOST_AUTO_TEST_CASE(TestOne) {
+	short a = 3;
+	short b = 4;
+	short c = KaratsubaImpl(a, b, 32);
 	{
 		tInt<128> a("13468787627424937390902471556");
 		CheckSqrt(IntSqrt(a), a);

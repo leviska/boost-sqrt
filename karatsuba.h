@@ -1,5 +1,6 @@
 #pragma once
 #include "sqrt.h"
+#include <boost/multiprecision/gmp.hpp>
 
 template<typename T>
 struct KaratsubaSqrt {};
@@ -21,7 +22,7 @@ struct KaratsubaSqrt<tInt<64>> {
 template<typename tInt>
 tInt KaratsubaImpl(tInt v, tInt& rem, size_t bits) {
     if (bits <= 64) {
-        uint64_t val = v.template convert_to<uint64_t>();
+        uint64_t val = static_cast<uint64_t>(v);
         uint64_t s = MathSqrt<uint64_t>().Sqrt(val);
         rem = tInt(val - s * s);
         return tInt(s);
@@ -30,7 +31,7 @@ tInt KaratsubaImpl(tInt v, tInt& rem, size_t bits) {
     tInt s = KaratsubaImpl(tInt(v >> (b * 2)), rem, bits - b * 2);
     tInt q;
     rem <<= b;
-    divide_qr(rem + ((v & ((tInt(1) << (b * 2)) - 1)) >> b), s << 1, q, rem);
+    divide_qr(tInt(rem + ((v & ((tInt(1) << (b * 2)) - 1)) >> b)), tInt(s << 1), q, rem);
     rem <<= b;
     rem += (v & ((tInt(1) << b) - 1));
     s <<= b;
