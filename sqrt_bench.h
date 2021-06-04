@@ -3,6 +3,15 @@
 #include <boost/random.hpp>
 #include "newton.h"
 #include "karatsuba.h"
+#include "karatsubapr.h"
+
+static bool CheckSqrtBench(boost::multiprecision::cpp_int const& sqrt, boost::multiprecision::cpp_int const& value) {
+	if (sqrt * sqrt > value || (sqrt + 1) * (sqrt + 1) <= value) {
+		std::cout << "error " << sqrt << " " << value << std::endl;
+		return false;
+	}
+	return true;
+}
 
 template <size_t Bits, size_t Length, template <typename> typename Sqrt>
 void BenchSqrt(benchmark::State &state) {
@@ -19,6 +28,11 @@ void BenchSqrt(benchmark::State &state) {
 			i = 0;
 		}
 	}
+	/*for (size_t i = 0; i < vec.size(); i++) { 
+		if (res[i] != 0) {
+			CheckSqrtBench(res[i], vec[i]);
+		}
+	}*/
 	BENCHMARK_UNUSED(res);
 	BENCHMARK_UNUSED(vec);
 }
@@ -40,6 +54,11 @@ void BenchArbitrarySqrt(benchmark::State &state, F f) {
 			i = 0;
 		}
 	}
+	/*for (size_t i = 0; i < vec.size(); i++) { 
+		if (res[i] != 0) {
+			CheckSqrtBench(res[i], vec[i]);
+		}
+	}*/
 }
 
 template <typename T, size_t Length, typename F>
@@ -57,7 +76,7 @@ void RegisterArbitraryIter(const std::string &name, F f) {
 
 template <typename T, typename F>
 void RegisterArbitrary(const std::string &name, F f) {
-    RegisterArbitraryIter<T, F, 32, 64, 96, 128, 256, 512, 1024, 8192, 65536>(name, f);
+    RegisterArbitraryIter<T, F, 32, 64, 96, 128, 256, 512, 1024, 8192/*, 65536*/>(name, f);
 }
 
 template <size_t Bits, size_t Length, template <typename> typename Sqrt>
@@ -83,7 +102,7 @@ void RegisterIter(const std::string &name) {
 
 template <template <typename> typename Sqrt>
 void Register(const std::string &name) {
-	RegisterIter<Sqrt, 32, 64, 96, 128, 256, 512, 1024, 8192, 65536>(name);
+	RegisterIter<Sqrt, 32, 64, 96, 128, 256, 512, 1024, 8192/*, 65536*/>(name);
 }
 
 template <typename T>
@@ -100,16 +119,34 @@ struct CopyBaseline {
 	}
 };
 
+template <typename T>
+struct KaratsubaPR {
+	T Sqrt(const T &v) {
+		return bmp_2_sqrt<T>(v);
+	}
+};
+
+template <typename T>
+struct Karatsuba {
+	T Sqrt(const T &v) {
+		return bmp_2_sqrt<T>(v);
+	}
+};
+
 template<template<typename> typename Sqrt, typename T>
 T CallSqrt(const T& t) {
     return Sqrt<T>().Sqrt(t);
 }
 
 void RegisterSqrt() {
-    Register<CopyBaseline>("CopyBaseline");
-    Register<BoostSqrt>("BoostSqrt");
-    Register<NewtonSqrt>("NewtonSqrt");
-    Register<KaratsubaSqrt>("KaratsubaSqrt");
-    RegisterArbitrary<cpp_int>("KaratsubaArbitrarySqrt", [](const auto& v) { return CallSqrt<KaratsubaSqrt>(v); });
-    RegisterArbitrary<mpz_int>("GMPArbitrarySqrt", [](const auto& v) { return sqrt(v); });
+    Register<CopyBaseline>("Copy Fixed");
+    Register<BoostSqrt>("Boost Fixed");
+    Register<NewtonSqrt>("Newton Fixed");
+    Register<Karatsuba>("Final Fixed");
+    RegisterArbitrary<cpp_int>("Boost Copy Arbitrary", [](const auto& v) { return v; });
+    RegisterArbitrary<mpz_int>("GMP Copy Arbitrary", [](const auto& v) { return v; });
+    RegisterArbitrary<cpp_int>("Boost Arbitrary", [](const auto& v) { return sqrt(v); });
+    RegisterArbitrary<cpp_int>("Final Arbitrary", [](const auto& v) { return bmp_2_sqrt(v); });
+    RegisterArbitrary<mpz_int>("GMP Arbitrary", [](const auto& v) { return sqrt(v); });
+    //Register<Karatsuba>("Final Fixed");
 }

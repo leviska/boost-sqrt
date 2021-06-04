@@ -44,7 +44,7 @@ void RegisterBoost(const std::string& prefix, F f) {
 	RegisterOperPref<tInt<512>, 512 * LeftMul, 512, F>(prefix, f);
 	RegisterOperPref<tInt<1024>, 1024 * LeftMul, 1024, F>(prefix, f);
 	RegisterOperPref<tInt<8192>, 8192 * LeftMul, 8192, F>(prefix, f);
-	RegisterOperPref<tInt<65536>, 65536 * LeftMul, 65536, F>(prefix, f);
+	//RegisterOperPref<tInt<65536>, 65536 * LeftMul, 65536, F>(prefix, f);
 }
 
 template<typename T, size_t LeftMul, typename F>
@@ -55,12 +55,12 @@ void RegisterArbitrary(const std::string& prefix, F f) {
 	RegisterOperPref<T, 512 * LeftMul, 512, F>(prefix, f);
 	RegisterOperPref<T, 1024 * LeftMul, 1024, F>(prefix, f);
 	RegisterOperPref<T, 8192 * LeftMul, 8192, F>(prefix, f);
-	RegisterOperPref<T, 65536 * LeftMul, 65536, F>(prefix, f);
+	//RegisterOperPref<T, 65536 * LeftMul, 65536, F>(prefix, f);
 }
 
 template<typename T>
 T KarSqrt(const T& t) {
-    return KaratsubaSqrt<T>().Sqrt(t);
+    return Karatsuba<T>().Sqrt(t);
 }
 
 template<bool Kar, typename T>
@@ -70,7 +70,7 @@ T Compute(T a, T b) {
 	T c = (a * b) / (a + b);
 	T s = a * b * c * (a + b + c);
 	if constexpr (Kar) {
-		s = KaratsubaSqrt<T>().Sqrt(s);
+		s = Karatsuba<T>().Sqrt(s);
 	}
 	else {
 		s = boost::multiprecision::sqrt(s);
@@ -81,7 +81,7 @@ T Compute(T a, T b) {
 }
 
 void RegisterOper() {
-	/*RegisterBoost<1>("Boost: CopyBaseline", [](const auto& a, const auto&) { return a; });
+	RegisterBoost<1>("Boost: CopyBaseline", [](const auto& a, const auto&) { return a; });
 	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: CopyBaseline", [](const auto& a, const auto&) { return a; });
 	RegisterArbitrary<mpz_int, 1>("GMP: CopyBaseline", [](const auto& a, const auto&) { return a; });
 
@@ -100,17 +100,10 @@ void RegisterOper() {
 	RegisterBoost<2>("Boost: Div", [](const auto& a, const auto& b) { return a / b; });
 	RegisterArbitrary<cpp_int, 2>("Boost arbitrary: Div", [](const auto& a, const auto& b) { return a / b; });
 	RegisterArbitrary<mpz_int, 2>("GMP: Div", [](const auto& a, const auto& b) { return a / b; });
-*/
+
 	RegisterBoost<1>("Boost: Compute", [](const auto& a, const auto& b) { return Compute<false>(a, b); });
 	RegisterBoost<1>("Boost kar: Compute", [](const auto& a, const auto& b) { return Compute<true>(a, b); });
 	RegisterArbitrary<cpp_int, 1>("Boost arbitrary: Compute", [](const auto& a, const auto& b) { return Compute<false>(a, b); });
 	RegisterArbitrary<cpp_int, 1>("Boost kar arbitrary: Compute", [](const auto& a, const auto& b) { return Compute<true>(a, b); });
 	RegisterArbitrary<mpz_int, 1>("GMP: Compute", [](const auto& a, const auto& b) { return Compute<false>(a, b); });
-/*
-	RegisterBoost<1>("Boost: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
-	RegisterBoost<1>("Karatsuba: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
-	RegisterArbitrary<cpp_int, 1>("Karatsuba arbitrary: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
-	RegisterArbitrary<mpz_int, 1>("Karatsuba gmp int: Sqrt", [](const auto& a, const auto&) { return KarSqrt(a); });
-	RegisterArbitrary<mpz_int, 1>("GMP: Sqrt", [](const auto& a, const auto&) { return sqrt(a); });
-	*/
 }
